@@ -31,12 +31,10 @@ class PageDetail(object):
         self.sheet.write(0, 1, '專利名稱', self.basic_style)
         self.sheet.write(0, 2, '發明人', self.basic_style)
         self.sheet.write(0, 3, '申請人', self.basic_style)
-        self.sheet.write(0, 4, '发表时间', self.basic_style)
-        self.sheet.write(0, 5, '別人抓的申請日',self.basic_style)
-        self.sheet.write(0, 6, '申請號', self.basic_style)
-        self.sheet.write(0, 7, '申請日', self.basic_style)
-        self.sheet.write(0, 8, '公開號', self.basic_style)
-        self.sheet.write(0, 9, '公開日', self.basic_style)
+        self.sheet.write(0, 4, '申請號', self.basic_style)
+        self.sheet.write(0, 5, '申請日', self.basic_style)
+        self.sheet.write(0, 6, '公開號', self.basic_style)
+        self.sheet.write(0, 7, '公開日', self.basic_style)
 
 
         # 生成userKey,服务器不做验证
@@ -58,10 +56,8 @@ class PageDetail(object):
 
         filename = page_url[page_url.find('filename=')+9:]
         dbCode = 'SCPD'
+        #print("filename: ", filename)
         
-        print("filename: ", filename)
-        print("page_url: ", page_url)
-        print("download_url: ", download_url)
         # 前两次请求需要的验证参数
         params = {
             'curUrl':'detail.aspx?dbCode=' + dbCode + '&fileName=' + filename,
@@ -107,9 +103,7 @@ class PageDetail(object):
         序号 题名 作者 单位 关键字 摘要  来源 发表时间 数据库
         '''
         self.reference_list = []
-        for i in range(0,3):
-            self.reference_list.append(self.single_refence_list[i])
-        for i in range(3,6):
+        for i in range(0,4):
             self.reference_list.append(self.single_refence_list[i])
         self.reference_list.append(self.checkItem[0])
         self.reference_list.append(self.date[0])
@@ -121,7 +115,7 @@ class PageDetail(object):
         将获得的数据写入到excel
         '''
         self.create_list()
-        for i in range(0,10):
+        for i in range(0,8):
             self.sheet.write(int(self.reference_list[0]),i,self.reference_list[i],self.basic_style)
 
     def set_style(self):
@@ -135,8 +129,6 @@ class PageDetail(object):
         self.sheet.col(5).width = 256 * 20
         self.sheet.col(6).width = 256 * 20
         self.sheet.col(7).width = 256 * 20
-        self.sheet.col(8).width = 256 * 20
-        self.sheet.col(9).width = 256 * 20
         self.sheet.row(0).height_mismatch=True
         self.sheet.row(0).height = 20*20
         self.basic_style=xlwt.XFStyle()

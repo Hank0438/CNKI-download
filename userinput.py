@@ -95,12 +95,12 @@ def search_condition():
         condition_field_list['txt_' + str(index + 1) + '_special1'] = '='
     '''
     condition_field_list = {
-        'txt_1_value1': '神州高铁技术股份有限公司', 
+        #'txt_1_value1': '神州高铁技术股份有限公司', 
         'txt_1_sel': 'SQR',
         'txt_1_relation': '#CNKI_AND', 
         'txt_1_special1': '='
     }
-    #condition_field_list['txt_1_value1'] = input('请输入【申請人】：').strip()
+    condition_field_list['txt_1_value1'] = input('请输入【申請人】：').strip()
     
     return condition_field_list
 
