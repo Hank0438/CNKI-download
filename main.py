@@ -14,7 +14,7 @@ __author__ = 'Cyrus_Ren'
 import requests
 import re
 import time, os, shutil, logging
-from UserInput import get_uesr_inpt
+from userinput import get_uesr_inpt
 from GetConfig import config
 from CrackVerifyCode import crack
 from GetPageDetail import page_detail
@@ -60,15 +60,13 @@ class SearchTools(object):
             'ua': '1.21',
             'isinEn': '1',
             'PageName': 'ASP.brief_default_result_aspx',
-            'DbPrefix': 'SCDB',
-            'DbCatalog': '中国学术期刊网络出版总库',
-            'ConfigFile': 'CJFQ.xml',
-            'db_opt': 'CJFQ,CDFD,CMFD,CPFD,IPFD,CCND,CCJD',  # 搜索类别（CNKI右侧的）
-            'db_value': '中国学术期刊网络出版总库',
+            'DbPrefix': 'SCOD',
+            'DbCatalog': '专利数据总库',
+            'ConfigFile': 'SCOD.xml',
+            'db_opt': 'SCOD',  # 搜索类别（CNKI右侧的）
+            'db_value': '中国专利数据库,国外专利数据库',
             'year_type': 'echar',
             'his': '0',
-            'db_cjfqview': '中国学术期刊网络出版总库,WWJD',
-            'db_cflqview': '中国学术期刊网络出版总库',
             '__': time.asctime(time.localtime()) + ' GMT+0800 (中国标准时间)'
         }
         # 将固定字段与自定义字段组合
@@ -83,8 +81,9 @@ class SearchTools(object):
         second_get_res = self.session.get(self.get_result_url, headers=HEADER)
         change_page_pattern_compile = re.compile(
             r'.*?pagerTitleCell.*?<a href="(.*?)".*')
-        self.change_page_url = re.search(change_page_pattern_compile,
-                                         second_get_res.text).group(1)
+        
+        #self.change_page_url = re.search(change_page_pattern_compile,
+        #                                 second_get_res.text).group(1)
         self.parse_page(
             self.pre_parse_page(second_get_res.text), second_get_res.text)
 
@@ -217,7 +216,7 @@ class SearchTools(object):
             refence_file = requests.get(self.download_url, headers=HEADER)
             with open('data/CAJs\\' + name + '.caj', 'wb') as file:
                 file.write(refence_file.content)
-            time.sleep(config.crawl_stepWaitTime)
+        time.sleep(config.crawl_stepWaitTime)
 
 
 def s2h(seconds):

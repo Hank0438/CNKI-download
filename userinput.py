@@ -19,7 +19,8 @@ condition_value_list = {
     'd': 'AB',
     'e': 'FT',
     'f': 'RF',
-    'g': 'CLC$=|??'
+    'g': 'CLC$=|??',
+    'h': 'SQR'
 }
 #  各个条件的中文意思
 condition_list = {
@@ -29,7 +30,8 @@ condition_list = {
     'd': '摘要',
     'e': '全文',
     'f': '被引文献',
-    'g': '中图分类号'
+    'g': '中图分类号',
+    'h': '申請人'
 }
 # 各个条件类型的固定标识符
 condition_type_list = {'a': 'and', 'b': 'or', 'c': 'not'}
@@ -44,12 +46,14 @@ def get_uesr_inpt():
     fields={**condition_fields,**source_fields}
     print('正在检索中.....')
     print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+    print('fields', fields)
     return fields
 
 
 def search_condition():
     '''
     用户输入检索条件
+    '''
     '''
     print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
     print("|　　　　　　　　　　　　　　　　　　　　　　　　　|")
@@ -59,8 +63,8 @@ def search_condition():
     print("|（ｇ）中图分类号　　　　　　　　　　　　　　　　　|")
     print("|　　　　　　　　　　　　　　　　　　　　　　　　　|")
     print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-    select_condition = input("请选择（以空格分割，如a c）：").strip()
-    select_condition = select_condition.split(' ')
+    select_condition = 'h' #input("请选择（以空格分割，如a c）：").strip()
+    #select_condition = select_condition.split(' ')
     print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
     print('您选择的是：')
     input_check = ' '
@@ -89,11 +93,21 @@ def search_condition():
         condition_field_list['txt_' + str(index + 1) +
                              '_relation'] = '#CNKI_AND'
         condition_field_list['txt_' + str(index + 1) + '_special1'] = '='
+    '''
+    condition_field_list = {
+        'txt_1_value1': '神州高铁技术股份有限公司', 
+        'txt_1_sel': 'SQR',
+        'txt_1_relation': '#CNKI_AND', 
+        'txt_1_special1': '='
+    }
+    #condition_field_list['txt_1_value1'] = input('请输入【申請人】：').strip()
+    
     return condition_field_list
 
 def search_source():
     '''
     搜索期刊来源
+    '''
     '''
     print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
     is_search_source = input('是否需要规定文献来源（y/n）？')
@@ -102,3 +116,5 @@ def search_source():
     else:
         source=input('输入文献来源期刊名称：')
         return {'magazine_value1': source, 'magazine_special1': '%'}
+    '''
+    return {}
