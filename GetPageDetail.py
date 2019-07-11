@@ -42,7 +42,7 @@ class PageDetail(object):
 
 
     def get_detail_page(self, session, result_url, page_url,
-                        single_refence_list, download_url):
+                        single_refence_list):
         '''
         发送三次请求
         前两次服务器注册 最后一次正式跳转
@@ -52,15 +52,13 @@ class PageDetail(object):
         self.single_refence_list=single_refence_list
         self.session = session
         self.session.cookies.set('cnkiUserKey', self.cnkiUserKey)
-        self.download_url=download_url        
 
         filename = page_url[page_url.find('filename=')+9:]
-        dbCode = 'SCPD'
         #print("filename: ", filename)
         
         # 前两次请求需要的验证参数
         params = {
-            'curUrl':'detail.aspx?dbCode=' + dbCode + '&fileName=' + filename,
+            'curUrl':'detail.aspx?dbCode=SCPD&fileName=' + filename,
             'referUrl': result_url+'#J_ORDER&',
             'cnkiUserKey': self.session.cookies['cnkiUserKey'],
             'action': 'file',
