@@ -1,15 +1,7 @@
-"""
--------------------------------------------------
-   File Name：     GetPageDetail.py
-   Description :   获取文献摘要等信息存储至excel
-   Author :        Cyrus_Ren
-   date：          2018/12/12
--------------------------------------------------
-   Change Activity:
-                   
--------------------------------------------------
-"""
-__author__ = 'Cyrus_Ren'
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+
 
 import xlwt
 from bs4 import BeautifulSoup

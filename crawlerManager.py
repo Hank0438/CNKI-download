@@ -1,9 +1,25 @@
-'''
-import subprocess
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-subprocess.call(['C:\\Temp\\a b c\\Notepad.exe', 'C:\\test.txt'])
-'''
-import os, shutil
+import os, shutil, time
+
+select_dict = {
+    'A': 'Standard',
+    'B': 'Error Recovery',
+    'C': 'Detail Page'
+}
+print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
+print( '請選擇爬蟲模式（單選）：' )
+print( ' (A) Standard (B) Error Recovery (C) Detail Page' )
+print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
+select_condition = input( "請選擇：" )
+print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
+print( '您選擇的是：', select_dict[select_condition])
+if select_condition is not 'C':
+    startPosition = int(input( '請設定起始位置：'))
+    endPosition = int(input( '請設定結束位置：'))
+print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
+
 
 '''
 if os.path.isdir('data'):
@@ -15,19 +31,33 @@ os.mkdir('data')
 
 f = open('patent', 'r', encoding='utf-8')
 
-error_lines = []
-
-for line in f.readlines()[:20]:
-    print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-    line = line.strip()
-    print('下載: ', line)
-    try:
+if select_condition is 'A':
+    for line in f.readlines()[startPosition:endPosition]:
+        print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+        line = line.strip()
+        print('下載: ', line)
         os.system("python main.py " + line)
-    except OSError as e:
-        print('OSError: ', e)
-        error_lines.append(line)
-    print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+        print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+        time.sleep(3)
 
-eq = open('errorQuery', 'w', encoding='utf-8')
-for err in error_lines:
-    eq.write(err + '\n')
+if select_condition is 'B':
+    # 處理網路錯誤的
+    for line in f.readlines()[startPosition:endPosition]:
+
+        line = line.strip()
+        #print('檢查: ', line)
+        try:
+            ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
+            ftxt_lines = ftxt.readlines()
+            num = len(ftxt_lines)
+            numVerify = ftxt_lines[0]
+            #print('num: ', num)
+            #print('numVerify: ', (int(numVerify)//20) + 1 + int(numVerify))
+            if(num != (int(numVerify)//20) + 1 + int(numVerify)):
+                print("網路錯誤:", line)
+        except:
+            print('打不開 ' + line + '.txt')
+
+if select_condition is 'C':
+    #os.remove('bid6920.txt')
+    pass

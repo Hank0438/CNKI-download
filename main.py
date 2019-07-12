@@ -1,15 +1,6 @@
-"""
--------------------------------------------------
-   File Name：     main.py
-   Description :   爬虫主程序
-   Author :        Cyrus_Ren
-   date：          2018/12/8
--------------------------------------------------
-   Change Activity:
-                   
--------------------------------------------------
-"""
-__author__ = 'Cyrus_Ren'
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 
 import requests
 import re
@@ -174,7 +165,7 @@ class SearchTools(object):
         请求其他页面和请求第一个页面形式不同
         重新构造请求
         '''
-        time.sleep(config.crawl_stepWaitTime)
+        time.sleep(5)
         '''
         curpage_pattern_compile = re.compile(r'.*?curpage=(\d+).*?')
         self.get_result_url = CHANGE_PAGE_URL + re.sub(

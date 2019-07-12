@@ -1,15 +1,6 @@
-"""
--------------------------------------------------
-   File Name：     GetConfig.py
-   Description :   获取配置信息
-   Author :        Cyrus_Ren
-   date：          2018/12/10
--------------------------------------------------
-   Change Activity:
-                   
--------------------------------------------------
-"""
-__author__ = 'Cyrus_Ren'
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 
 import os
 import configparser
