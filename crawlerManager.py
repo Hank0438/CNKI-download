@@ -3,6 +3,7 @@
 
 import os, shutil, time
 
+crawl_stepWaitTime = 3
 select_dict = {
     'A': 'Standard',
     'B': 'Error Recovery',
@@ -38,7 +39,7 @@ if select_condition is 'A':
         print('下載: ', line)
         os.system("python main.py " + line)
         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-        time.sleep(3)
+        time.sleep(crawl_stepWaitTime)
 
 if select_condition is 'B':
     # 處理網路錯誤的
@@ -51,12 +52,28 @@ if select_condition is 'B':
             ftxt_lines = ftxt.readlines()
             num = len(ftxt_lines)
             numVerify = ftxt_lines[0]
+            ftxt.close()
             #print('num: ', num)
             #print('numVerify: ', (int(numVerify)//20) + 1 + int(numVerify))
             if(num != (int(numVerify)//20) + 1 + int(numVerify)):
-                print("網路錯誤:", line)
+                print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                print("網路錯誤:", line + '.txt')
+                os.remove('data/' + line + '.txt')
+                print("重新下載: ", line)
+                print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                os.system("python main.py " + line + " --repair")
+                time.sleep(crawl_stepWaitTime)
         except:
+            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
             print('打不開 ' + line + '.txt')
+            try:
+                os.remove('data/' + line + '.txt')
+            except:
+                print('找不到 ' + line + '.txt')
+            print("重新下載: ", line)
+            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+            os.system("python main.py " + line)
+            time.sleep(crawl_stepWaitTime)
 
 if select_condition is 'C':
     #os.remove('bid6920.txt')

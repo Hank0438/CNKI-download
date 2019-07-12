@@ -77,8 +77,19 @@ class SearchTools(object):
                                          second_get_res.text).group(1)
         print('self.change_page_url: ', self.change_page_url)
         '''
-        self.parse_page(
-            self.pre_parse_page(second_get_res.text), second_get_res.text)
+        left_page = 0
+        total_page = self.pre_parse_page(second_get_res.text)
+        if (len(sys.argv) == 3):
+            if(sys.argv[2] == '--repair') :
+                ftxt = open('data/' + sys.argv[1] + '.txt', 'r', encoding='utf-8')
+                ftxt_lines = ftxt.readlines()
+                self.cur_page_num = len(ftxt_lines) // 21
+                left_page = (int(ftxt_lines[0])//20 + 1) - self.cur_page_num + 1
+        if(left_page > 1) :
+            self.cur_page_num += 1
+            self.get_another_page(left_page)
+        else:
+            self.parse_page(total_page, second_get_res.text)
 
     def pre_parse_page(self, page_source):
         '''
@@ -156,6 +167,7 @@ class SearchTools(object):
 
         # download_page_left为剩余等待遍历页面
         #print('download_page_left: ', download_page_left)
+        
         if download_page_left > 1:
             self.cur_page_num += 1
             self.get_another_page(download_page_left)
