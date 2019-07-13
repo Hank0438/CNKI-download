@@ -65,7 +65,6 @@ class SearchTools(object):
         再一次发送get请求,这次请求没有写文献等东西
         两次请求来获得文献列表
         '''
-
         # 将固定字段与自定义字段组合
         post_data = {**static_post_data, **ueser_input}
         # 必须有第一次请求，否则会提示服务器没有用户
@@ -77,15 +76,6 @@ class SearchTools(object):
         # 检索结果的第一个页面
         second_get_res = self.session.get(self.get_result_url, headers=HEADER)
         '''
-        change_page_pattern_compile = re.compile(
-            r'.*?pagerTitleCell.*?<a href="(.*?)".*')
-        
-        self.change_page_url = re.search(change_page_pattern_compile,
-                                         second_get_res.text).group(1)
-        print('self.change_page_url: ', self.change_page_url)
-        '''
-        
-        '''
         用户选择需要检索的页数
         '''
         reference_num_pattern_compile = re.compile(r'.*?找到&nbsp;(.*?)&nbsp;')
@@ -93,9 +83,7 @@ class SearchTools(object):
                                   second_get_res.text).group(1)
         reference_num_int = int(self.reference_num.replace(',', ''))
         # 以每頁20筆計算有多少頁
-        self.total_page_num, i = divmod(reference_num_int, 20)
-        if i != 0: 
-            self.total_page_num += 1
+        self.total_page_num = (reference_num_int // 20) + 1
 
         print('檢索到' + self.reference_num + '條結果，總共' + str(self.total_page_num) + '頁')
         if (self.repair is 0) and (self.recover is 0):
@@ -109,9 +97,6 @@ class SearchTools(object):
             ftxt.close()
             self.cur_page_num = (self.repair_num // 20) + 1 
             self.left_page_num = self.total_page_num - self.cur_page_num
-
-        if(self.left_page_num > 1) :
-            self.cur_page_num += 1
             self.get_another_page()
         else:
             self.parse_page(second_get_res.text)
