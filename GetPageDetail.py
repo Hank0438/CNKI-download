@@ -15,6 +15,7 @@ HEADER = config.crawl_headers
 
 class PageDetail(object):
     def __init__(self):
+        '''
         # count用于计数excel行
         self.excel = xlwt.Workbook(encoding='utf8')
         self.sheet = self.excel.add_sheet('專利列表', True)
@@ -27,21 +28,32 @@ class PageDetail(object):
         self.sheet.write(0, 5, '申請日', self.basic_style)
         self.sheet.write(0, 6, '公開號', self.basic_style)
         self.sheet.write(0, 7, '公開日', self.basic_style)
-
-
+        '''
+        self.patentDetail = {
+            'userInput' : '',
+            'id': '',
+            'patentName': '',
+            'applyDate': '',
+            'applyId': '',
+            'announceDate': '',
+            'announceId': ''
+        }
         # 生成userKey,服务器不做验证
         self.cnkiUserKey=self.set_new_guid()
 
 
     def get_detail_page(self, session, result_url, page_url,
-                        single_refence_list):
+                        single_refence_list, userInput):
         '''
         发送三次请求
         前两次服务器注册 最后一次正式跳转
         '''
         # 这个header必须设置
         HEADER['Referer'] = result_url
-        self.single_refence_list=single_refence_list
+        #self.single_refence_list=single_refence_list
+        self.userInput = userInput
+        self.patentDetail['id'] = single_refence_list[0]
+        self.patentDetail['patentName'] = single_refence_list[1]
         self.session = session
         self.session.cookies.set('cnkiUserKey', self.cnkiUserKey)
 
@@ -69,7 +81,7 @@ class PageDetail(object):
         page_url = 'http://dbpub.cnki.net/Grid2008/Dbpub/Detail.aspx?DBName=SCPD2010&FileName='+filename
         get_res=self.session.get(page_url,headers=HEADER)
         self.pars_page(get_res.text)
-        self.excel.save('data/Reference_detail.xls')
+        #self.excel.save('data/' + userInput + '.xls')
 
 
     def pars_page(self,detail_page):
@@ -85,7 +97,18 @@ class PageDetail(object):
             self.checkItem.append(t.text)
             date = t.next_sibling.find_next_siblings("td")[1]
             self.date.append(date.text)
-        self.wtire_excel()
+        #self.wtire_excel()
+
+        self.patentDetail['applyDate'] = self.checkItem[0]
+        self.patentDetail['applyId'] = self.date[0]
+        self.patentDetail['announceDate'] = self.checkItem[1]
+        self.patentDetail['announceId'] = self.date[1]
+        f = open('data/'+ self.userInput +'.txt', 'a', encoding='utf-8')
+        writeLine = (self.userInput+' '+self.patentDetail['id']+' '+ self.patentDetail['patentName']+' '+
+                    self.patentDetail['applyDate']+' '+self.patentDetail['applyId']+' '+
+                    self.patentDetail['announceDate']+' '+self.patentDetail['announceId'])
+        f.write(writeLine + '\n')
+        f.close()
 
     def create_list(self):
         '''
