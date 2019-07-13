@@ -98,7 +98,9 @@ class SearchTools(object):
             self.cur_page_num = (self.repair_num // 20) + 1 
             self.left_page_num = self.total_page_num - self.cur_page_num
             self.get_another_page()
+            
         else:
+            self.left_page_num = self.total_page_num - self.cur_page_num
             self.parse_page(second_get_res.text)
 
 
