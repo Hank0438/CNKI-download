@@ -98,7 +98,7 @@ class SearchTools(object):
             self.cur_page_num = (self.repair_num // 20) + 1 
             self.left_page_num = self.total_page_num - self.cur_page_num
             self.get_another_page()
-            
+
         else:
             self.left_page_num = self.total_page_num - self.cur_page_num
             self.parse_page(second_get_res.text)
@@ -167,7 +167,7 @@ class SearchTools(object):
         # self.left_page_num为剩余等待遍历页面
         #print('download_page_left: ', self.left_page_num)
         
-        if self.left_page_num > 1:
+        if self.left_page_num >= 1:
             self.cur_page_num += 1
             self.get_another_page()
 

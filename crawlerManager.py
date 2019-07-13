@@ -22,13 +22,12 @@ if select_condition is 'A':
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 
 
-'''
-if os.path.isdir('data'):
-    #刪除資料夾
-    shutil.rmtree('data')
-#新增空資料夾
-os.mkdir('data')
-'''
+
+if os.path.isdir('data') is not True:
+    #刪除資料夾 #shutil.rmtree('data')
+    #新增空資料夾
+    os.mkdir('data')
+
 
 
 if select_condition is 'A':
