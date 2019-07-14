@@ -86,19 +86,19 @@ class SearchTools(object):
         self.total_page_num = (reference_num_int // 20) + 1
 
         print('檢索到' + self.reference_num + '條結果，總共' + str(self.total_page_num) + '頁')
-        if (self.repair is 0) and (self.recover is 0):
+        if (self.repair == 0) and (self.recover == 0):
             f = open('data/referenceDetail.txt', 'a', encoding='utf-8')
             f.write(self.userInput + ' ' + self.reference_num + '\n')
             f.close()
-        
-        if (self.repair is 1):
+
+        if (self.repair == 1):
             ftxt = open('data/' + self.userInput + '.txt', 'r', encoding='utf-8')
             self.repair_num = len(ftxt.readlines())
             ftxt.close()
-            self.cur_page_num = (self.repair_num // 20) + 1 
+            self.cur_page_num = (self.repair_num // 20) + 1
+            self.repair_reference_num = self.repair_num % 20
             self.left_page_num = self.total_page_num - self.cur_page_num
             self.get_another_page()
-
         else:
             self.left_page_num = self.total_page_num - self.cur_page_num
             self.parse_page(second_get_res.text)
@@ -126,7 +126,9 @@ class SearchTools(object):
         #f = open('data/'+ self.userInput +'.txt', 'a', encoding='utf-8')
         #f.write(self.reference_num + '\n')
         for index, tr_info in enumerate(tr_table.find_all(name='tr')):
-            #if self.repair is 1:
+            if self.repair == 1:
+                if index < self.repair_reference_num:
+                    continue
 
             tr_text = ''
             detail_url = ''
@@ -172,6 +174,7 @@ class SearchTools(object):
             self.get_another_page()
 
     def get_another_page(self):
+        #print('cur_page_num: ', self.cur_page_num)
         '''
         请求其他页面和请求第一个页面形式不同
         重新构造请求
@@ -221,10 +224,11 @@ def main():
     search.userInput = sys.argv[1] 
     userInputParams = get_uesr_inpt(search.userInput)
     if (len(sys.argv) == 3):
-        if (sys.argv[2] is '--repair'):
-            self.repair = 1
-        if (sys.argv[2] is '--recover'):
-            self.recover = 1
+        if (sys.argv[2] == '--repair'):
+            search.repair = 1
+        if (sys.argv[2] == '--recover'):
+            search.recover = 1
+    #print('search param:(%d,%d)' % (search.repair, search.recover) )
     search.search_reference(userInputParams)
     #print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
     print('爬取完毕，共运行：'+s2h(time.perf_counter()))

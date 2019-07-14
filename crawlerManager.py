@@ -71,10 +71,12 @@ if select_condition is 'B':
             print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
             print('打不開 ' + line + '.txt')
             
+            '''
             try:
                 os.remove('data/' + line + '.txt')
             except:
                 print('找不到 ' + line + '.txt')
+            '''
             print("重新下載: ", line)
             print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
             os.system("python main.py " + line + " --recover")
