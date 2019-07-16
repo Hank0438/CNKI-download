@@ -49,6 +49,19 @@ CNKI_download
        -- referencedetail.xls    專利申請人和持有專利數
  ```
 
+
+## docker image
+#根據dockerfile建立docker image
+docker build -t cnki-download .
+
+#根據docker image建立container
+docker run -it --name cnki -v $(pwd):/app cnki-download
+#不能預設在背景執行(-d)，否則無法給定爬蟲範圍
+
+#進入執行中的container
+docker attach cnki
+
+
 ## 注意事項 
 * 如果出现“遠端主機拒絕訪問”的話，可以嘗試增加發送請求的間隔時間。
 * 如果只爬取頁面資訊而不下載的話，可能會再發送1000次左右的請求時出現反覆輸入驗證碼的情形(即使輸入正確)。目前尚未確定原因。
