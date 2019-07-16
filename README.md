@@ -51,6 +51,7 @@ CNKI_download
 
 
 ## docker image
+```
 #根據dockerfile建立docker image
 docker build -t cnki-download .
 
@@ -60,6 +61,7 @@ docker run -it --name cnki -v $(pwd):/app cnki-download
 
 #進入執行中的container
 docker attach cnki
+```
 
 
 ## 注意事項 
