@@ -1,0 +1,9 @@
+awk '{x+=1}END{print "cnki0    0-1000:" x}' cnki1/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki2 2000-3000:" x}' cnki2/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki3 3000-4000:" x}' cnki3/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki4 4000-5000:" x}' cnki4/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki5 5000-6000:" x}' cnki5/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki6 6000-7000:" x}' cnki6/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki7 7000-8000:" x}' cnki7/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki8 8000-9000:" x}' cnki-download/data/referenceDetail.txt
+awk '{x+=1}END{print "cnki9 9000-9600:" x}' cnki9/data/referenceDetail.txt
