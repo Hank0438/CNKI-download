@@ -41,9 +41,9 @@ python main.py
 ```
 
 ## 爬蟲模式
-(A)Standard：選取範圍然後執行
-(B)Error Recovery：根據referenceDetail.txt修復內容有誤的資料
-(C)Single：執行main.py，必須在執行前給定申請人
+* (A)Standard：選取範圍然後執行
+* (B)Error Recovery：根據referenceDetail.txt修復內容有誤的資料
+* (C)Single：執行main.py，必須在執行前給定申請人
 
 
 ## 下載文件結構
