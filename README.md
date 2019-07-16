@@ -40,13 +40,19 @@ python crawlerManager.py
 python main.py
 ```
 
+## 爬蟲模式
+(A)Standard：選取範圍然後執行
+(B)Error Recovery：根據referenceDetail.txt修復內容有誤的資料
+(C)Single：執行main.py，必須在執行前給定申請人
+
+
 ## 下載文件結構
 爬蟲執行完畢後，會有以下結構
 ```
 CNKI_download
   -- data                        
        -- XXXXX.txt              'XXXXX'為申請人，內容為持有專利明細
-       -- referencedetail.xls    專利申請人和持有專利數
+       -- referenceDetail.txt    專利申請人和持有專利數
  ```
 
 
