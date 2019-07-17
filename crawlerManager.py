@@ -7,11 +7,11 @@ crawl_stepWaitTime = 3
 select_dict = {
     'A': 'Standard',
     'B': 'Error Recovery',
-    'C': 'Detail Page'
+    'C': 'Create List',
 }
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 print( '請選擇爬蟲模式（單選）：' )
-print( ' (A) Standard (B) Error Recovery (C) Single ' )
+print( ' (A) Standard (B) Error Recovery (C) Creat List' )
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 select_condition = input( "請選擇：" )
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
@@ -85,4 +85,4 @@ if select_condition is 'B':
 
 
 if select_condition is 'C':
-    os.system("python main.py " + line)
+    os.system("python createList.py")
