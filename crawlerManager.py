@@ -1,7 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/bash
 # -*- coding: utf-8 -*-
 
 import os, shutil, time
+from main import startCrawler
 
 crawl_stepWaitTime = 3
 select_dict = {
@@ -11,12 +12,12 @@ select_dict = {
 }
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 print( '請選擇爬蟲模式（單選）：' )
-print( ' (A) Standard (B) Error Recovery (C) Creat List' )
+print( ' (A) Standard (B) Error Recovery (C) Check Data' )
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 select_condition = input( "請選擇：" )
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 print( '您選擇的是：', select_dict[select_condition])
-if select_condition is 'A':
+if (select_condition is 'A'):
     startPosition = int(input( '請設定起始位置：'))
     endPosition = int(input( '請設定結束位置：'))
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
@@ -36,53 +37,83 @@ if select_condition is 'A':
         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
         line = line.strip()
         print('下載: ', line)
-        os.system("python main.py " + line)
+        ### os.system("python main.py " + line)
+        startCrawler(line, '')
         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
         time.sleep(crawl_stepWaitTime)
 
 
 
 if select_condition is 'B':
-    f = open('data/referenceDetail.txt', 'r', encoding='utf-8')
+
     # 處理網路錯誤的
+    part = input('第幾份:')
+    f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
     for detail in f.readlines():
         detail = detail.strip().split(' ')
-        line = detail[0]
-        numVerify = detail[1]
-        print('檢查: ', line, numVerify)
-        try:
-            ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
-            ftxt_lines = ftxt.readlines()
-            num = len(ftxt_lines)
-            ftxt.close()
-            print('num: ', num)
-            print('numVerify: ', int(numVerify) )
-            
-            if(num != int(numVerify)):
+        idx = detail[0]
+        line = detail[1]
+        print('檢查: ', idx, line)
+        if len(detail) == 3:
+            numVerify = detail[2]
+
+            if os.path.isfile('data/' + line + '.txt'):
+                try:
+                    ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
+                    ftxt_lines = ftxt.readlines()
+                    num = len(ftxt_lines)
+                    ftxt.close()
+                    print('num: ', num)
+                    print('numVerify: ', int(numVerify) )
+                    
+                    if(num != int(numVerify)):
+                        print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                        print("網路錯誤:", line + '.txt')
+                        print("重新下載: ", line)
+                        print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                        ### os.system("python main.py " + line + " --repair")
+                        startCrawler(line, "--repair")
+                        time.sleep(crawl_stepWaitTime)
+                    
+                except:
+                    print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                    print('打不開 ' + line + '.txt')
+                    print("重新下載: ", line)
+                    print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                    if os.path.isfile('data/' + line + '.txt'):
+                        ###os.system("python main.py " + line + " --repair")
+                        startCrawler(line, "--repair")
+                    else:
+                        ###os.system("python main.py " + line + " --recover")
+                        startCrawler(line, "--recover")
+                    time.sleep(crawl_stepWaitTime)
+
+            else:
                 print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                print("網路錯誤:", line + '.txt')
-                #os.remove('data/' + line + '.txt')
-                print("重新下載: ", line)
+                print('下載: ', line)
+                ###os.system("python main.py " + line)
+                startCrawler(line, "")
                 print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                os.system("python main.py " + line + " --repair")
-                time.sleep(crawl_stepWaitTime)
-            
-        except:
-            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-            print('打不開 ' + line + '.txt')
-            
-            '''
-            try:
-                os.remove('data/' + line + '.txt')
-            except:
-                print('找不到 ' + line + '.txt')
-            '''
-            print("重新下載: ", line)
-            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-            os.system("python main.py " + line + " --recover")
-            time.sleep(crawl_stepWaitTime)
-            
+
 
 
 if select_condition is 'C':
-    os.system("python createList.py")
+    part = input('第幾份:')
+    f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
+    for detail in f.readlines():
+        detail = detail.strip().split(' ')
+        idx = detail[0]
+        line = detail[1]
+        #print('檢查: ', idx, line)
+        if len(detail) == 3:
+            numVerify = detail[2]
+
+            if os.path.isfile('data/' + line + '.txt'):
+                ftxt = open('data/' + line + '.txt', 'a', encoding='utf-8')
+                ftxtLines = ftxt.readlines()
+                ftxt.close()
+                for idx, ftxt_line in enumerate(ftxtLines):
+                    ftxt_line = ftxt_line.strip().split(' ')
+                    if idx != int(ftxt_line[1]):
+                        print('文件有重複爬取!!')
+                        break

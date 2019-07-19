@@ -217,22 +217,21 @@ def get_uesr_inpt(userInput):
     #print('fields', fields)
     return fields
 
-def main():
+def startCrawler(userInput, param):
     time.perf_counter()
     search = SearchTools()
     userInput_counter = 0
-    search.userInput = sys.argv[1] 
+    search.userInput = userInput
     userInputParams = get_uesr_inpt(search.userInput)
-    if (len(sys.argv) == 3):
-        if (sys.argv[2] == '--repair'):
-            search.repair = 1
-        if (sys.argv[2] == '--recover'):
-            search.recover = 1
+    if (param == '--repair'):
+        search.repair = 1
+    if (param == '--recover'):
+        search.recover = 1
     #print('search param:(%d,%d)' % (search.repair, search.recover) )
     search.search_reference(userInputParams)
     #print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-    print('爬取完毕，共运行：'+s2h(time.perf_counter()))
+    print('執行完成，耗時：'+s2h(time.perf_counter()))
 
 
 if __name__ == '__main__':
-    main()
+    startCrawler('扬州亿安电动车有限公司', '')
