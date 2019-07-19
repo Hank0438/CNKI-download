@@ -105,15 +105,31 @@ if select_condition is 'C':
         idx = detail[0]
         line = detail[1]
         #print('檢查: ', idx, line)
+        
+        refCount, repeatCount, disappearCount = 0, 0, 0
+        
         if len(detail) == 3:
             numVerify = detail[2]
-
             if os.path.isfile('data/' + line + '.txt'):
-                ftxt = open('data/' + line + '.txt', 'a', encoding='utf-8')
+                ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
                 ftxtLines = ftxt.readlines()
                 ftxt.close()
-                for idx, ftxt_line in enumerate(ftxtLines):
+                for ftxt_idx, ftxt_line in enumerate(ftxtLines):
                     ftxt_line = ftxt_line.strip().split(' ')
-                    if idx != int(ftxt_line[1]):
-                        print('文件有重複爬取!!')
+                    if ftxt_idx+1 != int(ftxt_line[1]):
+                        print('='*10 + '文件有重複爬取' + '='*10)
+                        global repeatCount
+                        repeatCount += 1
+                        print(idx, ' '+line, ' 目前總行數: ', len(ftxtLines), ' 中斷行數: ', ftxt_idx+1, ' <<< ', numVerify)
                         break
+            else:
+                print('='*10, idx, ' ' + line + '  不存在' + '='*10)
+                global disappearCount
+                disappearCount += 1
+        else:
+            global refCount
+            refCount += 1
+    print('refCount: ', refCount)
+    print('repeatCount: ', repeatCount)
+    print('disappearCount: ', disappearCount)
+
