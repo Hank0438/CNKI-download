@@ -112,13 +112,34 @@ if select_condition is 'C':
                 ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
                 ftxtLines = ftxt.readlines()
                 ftxt.close()
-                for ftxt_idx, ftxt_line in enumerate(ftxtLines):
+                entryCount = 0
+                entryCountArr = []
+                foundRepeat = False
+                ftxt_idx = 0
+                ftxt_idxArr = []
+                for ftxt_line in ftxtLines:
+            
                     ftxt_line = ftxt_line.strip().split(' ')
-                    if ftxt_idx+1 != int(ftxt_line[1]):
-                        print('='*10 + '文件有重複爬取' + '='*10)
-                        repeatCount += 1
-                        print(idx, ' '+line, ' 目前總行數: ', len(ftxtLines), ' 中斷行數: ', ftxt_idx+1, ' <<< ', numVerify)
-                        break
+                    ftxt_idx += 1
+                    entryCount += 1
+                    
+                    if ftxt_idx != int(ftxt_line[1]):
+                        ftxt_idx = int(ftxt_line[1])
+
+                        ftxt_idxArr.append(ftxt_idx-1)
+                        entryCountArr.append(entryCount-1)
+                        entryCount = 0
+                        foundRepeat = True
+
+                if foundRepeat:
+                    ftxt_idxArr.append(ftxt_idx)
+                    entryCountArr.append(entryCount)
+                    print('='*10 + '文件有重複爬取' + '='*10)
+                    repeatCount += 1
+                    print(idx, ' '+line, '段落: ', ftxt_idxArr, ' 連續行數: ', entryCountArr, ' 總行數: ', numVerify)
+                        
+
+
             else:
                 print('='*10, idx, ' ' + line + '  不存在' + '='*10)
                 disappearCount += 1

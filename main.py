@@ -223,11 +223,11 @@ def startCrawler(userInput, param):
     userInput_counter = 0
     search.userInput = userInput
     userInputParams = get_uesr_inpt(search.userInput)
-    if (param == '--repair'):
+    if (param is '--repair'):
         search.repair = 1
-    if (param == '--recover'):
+    if (param is '--recover'):
         search.recover = 1
-    #print('search param:(%d,%d)' % (search.repair, search.recover) )
+    print('search param:(%d,%d)' % (search.repair, search.recover) )
     search.search_reference(userInputParams)
     #print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
     print('執行完成，耗時：'+s2h(time.perf_counter()))
