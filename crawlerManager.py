@@ -96,7 +96,7 @@ if select_condition is 'B':
                 print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
 
 
-
+refCount, repeatCount, disappearCount = 0, 0, 0
 if select_condition is 'C':
     part = input('第幾份:')
     f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
@@ -105,8 +105,6 @@ if select_condition is 'C':
         idx = detail[0]
         line = detail[1]
         #print('檢查: ', idx, line)
-        
-        refCount, repeatCount, disappearCount = 0, 0, 0
         
         if len(detail) == 3:
             numVerify = detail[2]
@@ -118,18 +116,22 @@ if select_condition is 'C':
                     ftxt_line = ftxt_line.strip().split(' ')
                     if ftxt_idx+1 != int(ftxt_line[1]):
                         print('='*10 + '文件有重複爬取' + '='*10)
-                        global repeatCount
                         repeatCount += 1
                         print(idx, ' '+line, ' 目前總行數: ', len(ftxtLines), ' 中斷行數: ', ftxt_idx+1, ' <<< ', numVerify)
                         break
             else:
                 print('='*10, idx, ' ' + line + '  不存在' + '='*10)
-                global disappearCount
                 disappearCount += 1
         else:
-            global refCount
             refCount += 1
-    print('refCount: ', refCount)
-    print('repeatCount: ', repeatCount)
-    print('disappearCount: ', disappearCount)
+
+    f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
+
+
+
+
+
+    print('refCount: ', refCount)               ### referenceDetail0000.txt上沒有數目
+    print('repeatCount: ', repeatCount)         ### 簡單判斷文件的idx不是連續
+    print('disappearCount: ', disappearCount)   ### 還沒抓的文件
 
