@@ -113,8 +113,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data/
-cnki_data/
 
 /data
 /cnki_data
