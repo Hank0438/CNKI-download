@@ -8,11 +8,12 @@ crawl_stepWaitTime = 3
 select_dict = {
     'A': 'Standard',
     'B': 'Error Recovery',
-    'C': 'Create List',
+    'C': 'Check Data',
+    'D': 'Check Large',
 }
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 print( '請選擇爬蟲模式（單選）：' )
-print( ' (A) Standard (B) Error Recovery (C) Check Data' )
+print( ' (A)Standard (B)Error Recovery (C)Check Data (D)Large Crawler' ) 
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
 select_condition = input( "請選擇：" )
 print( '－－－－－－－－－－－－－－－－－－－－－－－－－－' )
@@ -48,6 +49,7 @@ if select_condition is 'B':
 
     # 處理網路錯誤的
     part = input('第幾份:')
+    checkLarge = 1000
     f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
     for detail in f.readlines():
         detail = detail.strip().split(' ')
@@ -56,44 +58,52 @@ if select_condition is 'B':
         print('檢查: ', idx, line)
         if len(detail) == 3:
             numVerify = detail[2]
-
-            if os.path.isfile('data/' + line + '.txt'):
-                try:
-                    ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
-                    ftxt_lines = ftxt.readlines()
-                    num = len(ftxt_lines)
-                    ftxt.close()
-                    print('num: ', num)
-                    print('numVerify: ', int(numVerify) )
-                    
-                    if(num != int(numVerify)):
+            if int(numVerify.replace(',', '')) < checkLarge:
+                if os.path.isfile('data/' + line + '.txt'):
+                    try:
+                        ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
+                        ftxt_lines = ftxt.readlines()
+                        num = len(ftxt_lines)
+                        ftxt.close()
+                        print('num: ', num)
+                        print('numVerify: ', int(numVerify.replace(',', '')) )
+                        
+                        if(num < int(numVerify.replace(',', ''))):
+                            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                            print("網路錯誤:", line + '.txt')
+                            print("重新下載: ", line)
+                            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                            ### os.system("python main.py " + line + " --repair")
+                            startCrawler(line, "--repair")
+                            time.sleep(crawl_stepWaitTime)
+                        
+                    except:
+                        try:
+                            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                            print('打不開 ' + line + '.txt')
+                            print("重新下載: ", line)
+                            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                            if os.path.isfile('data/' + line + '.txt'):
+                                ###os.system("python main.py " + line + " --repair")
+                                startCrawler(line, "--repair")
+                            else:
+                                ###os.system("python main.py " + line + " --recover")
+                                startCrawler(line, "--recover")
+                            time.sleep(crawl_stepWaitTime)
+                        except:
+                            print("重新下載錯誤")
+                else:
+                    if int(numVerify.replace(',', '')) > 0:
                         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                        print("網路錯誤:", line + '.txt')
-                        print("重新下載: ", line)
+                        print('下載: ', line)
+                        ###os.system("python main.py " + line)
+                        try:
+                            startCrawler(line, "")
+                        except:
+                            print('下載錯誤')
                         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                        ### os.system("python main.py " + line + " --repair")
-                        startCrawler(line, "--repair")
-                        time.sleep(crawl_stepWaitTime)
-                    
-                except:
-                    print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                    print('打不開 ' + line + '.txt')
-                    print("重新下載: ", line)
-                    print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                    if os.path.isfile('data/' + line + '.txt'):
-                        ###os.system("python main.py " + line + " --repair")
-                        startCrawler(line, "--repair")
-                    else:
-                        ###os.system("python main.py " + line + " --recover")
-                        startCrawler(line, "--recover")
-                    time.sleep(crawl_stepWaitTime)
-
             else:
-                print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                print('下載: ', line)
-                ###os.system("python main.py " + line)
-                startCrawler(line, "")
-                print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
+                print('超過%d筆' % checkLarge)
 
 
 refCount, repeatCount, disappearCount = 0, 0, 0
@@ -138,8 +148,6 @@ if select_condition is 'C':
                     repeatCount += 1
                     print(idx, ' '+line, '段落: ', ftxt_idxArr, ' 連續行數: ', entryCountArr, ' 總行數: ', numVerify)
                         
-
-
             else:
                 print('='*10, idx, ' ' + line + '  不存在' + '='*10)
                 disappearCount += 1
@@ -156,3 +164,21 @@ if select_condition is 'C':
     print('repeatCount: ', repeatCount)         ### 簡單判斷文件的idx不是連續
     print('disappearCount: ', disappearCount)   ### 還沒抓的文件
 
+
+if select_condition is 'D':
+    checkLarge = input('超過多少: ')
+    f = open('cnki_data/totalList.txt', 'r', encoding='utf-8')
+    countLarge = 0
+    for detail in f.readlines():
+        if detail.strip() != '':
+            detail = detail.strip().split(' ')
+            idx = detail[0]
+            line = detail[1]
+        
+        if len(detail) == 3:
+            numVerify = detail[2]
+            
+            if int(numVerify.replace(',', '')) > int(checkLarge):
+                countLarge += 1
+                print(detail)
+    print('countLarge: ', countLarge)
