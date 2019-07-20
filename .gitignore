@@ -114,5 +114,6 @@ dmypy.json
 .pyre/
 
 
-data/*
-cnki_data/*
+
+cnki_data/*.xlsx
+cnki_data/*.txt
