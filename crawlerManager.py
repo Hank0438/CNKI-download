@@ -74,7 +74,7 @@ if select_condition is 'B':
                             print("重新下載: ", line)
                             print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
                             ### os.system("python main.py " + line + " --repair")
-                            startCrawler(line, "--repair")
+                            #startCrawler(line, "--repair")
                             time.sleep(crawl_stepWaitTime)
                         
                     except:
@@ -85,10 +85,12 @@ if select_condition is 'B':
                             print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
                             if os.path.isfile('data/' + line + '.txt'):
                                 ###os.system("python main.py " + line + " --repair")
-                                startCrawler(line, "--repair")
+                                #startCrawler(line, "--repair")
+                                pass
                             else:
                                 ###os.system("python main.py " + line + " --recover")
-                                startCrawler(line, "--recover")
+                                #startCrawler(line, "--recover")
+                                pass
                             time.sleep(crawl_stepWaitTime)
                         except:
                             print("重新下載錯誤")
@@ -106,7 +108,7 @@ if select_condition is 'B':
                 print('超過%d筆' % checkLarge)
 
 
-refCount, repeatCount, disappearCount = 0, 0, 0
+incompleteCount, refCount, repeatCount, disappearCount = 0, 0, 0, 0
 if select_condition is 'C':
     part = input('第幾份:')
     f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
@@ -114,14 +116,19 @@ if select_condition is 'C':
         detail = detail.strip().split(' ')
         idx = detail[0]
         line = detail[1]
-        #print('檢查: ', idx, line)
+        print('='*10, '檢查: ', idx, line, '='*10)
         
         if len(detail) == 3:
             numVerify = detail[2]
+            numVerify = int(numVerify.replace(',', ''))
             if os.path.isfile('data/' + line + '.txt'):
                 ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
                 ftxtLines = ftxt.readlines()
                 ftxt.close()
+                if numVerify != len(ftxtLines):
+                    print('-'*5 + '文件未爬完' + '-'*5)
+                    incompleteCount += 1
+
                 entryCount = 0
                 entryCountArr = []
                 foundRepeat = False
@@ -137,32 +144,30 @@ if select_condition is 'C':
                         ftxt_idx = int(ftxt_line[1])
 
                         ftxt_idxArr.append(ftxt_idx-1)
-                        entryCountArr.append(entryCount-1)
+                        entryCountArr.append(entryCount)
                         entryCount = 0
                         foundRepeat = True
 
                 if foundRepeat:
                     ftxt_idxArr.append(ftxt_idx)
                     entryCountArr.append(entryCount)
-                    print('='*10 + '文件有重複爬取' + '='*10)
+                    print('-'*5 + '文件有重複爬取' + '-'*5)
                     repeatCount += 1
-                    print(idx, ' '+line, '段落: ', ftxt_idxArr, ' 連續行數: ', entryCountArr, ' 總行數: ', numVerify)
+                    print('段落: ', ftxt_idxArr, '\n連續行數: ', entryCountArr, '\n總行數: ', numVerify)
                         
             else:
-                print('='*10, idx, ' ' + line + '  不存在' + '='*10)
+                print('-'*5 + '文件不存在' + '-'*5)
                 disappearCount += 1
         else:
             refCount += 1
 
-    f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
-
-
-
-
-
     print('refCount: ', refCount)               ### referenceDetail0000.txt上沒有數目
     print('repeatCount: ', repeatCount)         ### 簡單判斷文件的idx不是連續
     print('disappearCount: ', disappearCount)   ### 還沒抓的文件
+    print('incompleteCount: ', incompleteCount)   ### 還沒抓完的文件
+
+
+
 
 
 if select_condition is 'D':

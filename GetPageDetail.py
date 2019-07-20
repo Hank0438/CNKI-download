@@ -110,11 +110,12 @@ class PageDetail(object):
         f.write(writeLine + '\n')
         f.close()
 
+'''
     def create_list(self):
-        '''
-        整理excel每一行的数据
-        序号 题名 作者 单位 关键字 摘要  来源 发表时间 数据库
-        '''
+        
+        ### 整理excel每一行的数据
+        ### 序号 题名 作者 单位 关键字 摘要  来源 发表时间 数据库
+        
         self.reference_list = []
         for i in range(0,4):
             self.reference_list.append(self.single_refence_list[i])
@@ -122,7 +123,6 @@ class PageDetail(object):
         self.reference_list.append(self.date[0])
         self.reference_list.append(self.checkItem[1])
         self.reference_list.append(self.date[1])
-
     def wtire_excel(self):
         '''
         将获得的数据写入到excel
@@ -162,8 +162,7 @@ class PageDetail(object):
         self.basic_style.alignment=al
         self.basic_style.borders=borders
 
-
-
+'''
     def set_new_guid(self):
         '''
         生成用户秘钥
@@ -175,7 +174,6 @@ class PageDetail(object):
             if (i == 8) or (i == 12) or (i == 16) or (i == 20):
                 guid += "-"
         return guid
-
 
 # 实例化
 page_detail = PageDetail()

@@ -50,6 +50,7 @@ class SearchTools(object):
         self.session = requests.Session()
         self.repair = 0
         self.recover = 0
+        self.fix = 0
         self.userInput = ''
         self.reference_num = ''
         self.repair_num = 0
@@ -86,10 +87,6 @@ class SearchTools(object):
         self.total_page_num = (reference_num_int // 20) + 1
 
         print('檢索到' + self.reference_num + '條結果，總共' + str(self.total_page_num) + '頁')
-        if (self.repair == 0) and (self.recover == 0):
-            f = open('data/referenceDetail.txt', 'a', encoding='utf-8')
-            f.write(self.userInput + ' ' + self.reference_num + '\n')
-            f.close()
 
         if (self.repair == 1):
             ftxt = open('data/' + self.userInput + '.txt', 'r', encoding='utf-8')
@@ -122,11 +119,9 @@ class SearchTools(object):
                 self.left_page_num,
                 crack.get_image(self.get_result_url, self.session,
                                 page_source))
-        # 遍历每一行
-        #f = open('data/'+ self.userInput +'.txt', 'a', encoding='utf-8')
-        #f.write(self.reference_num + '\n')
+        
         for index, tr_info in enumerate(tr_table.find_all(name='tr')):
-            if self.repair == 1:
+            if (self.repair == 1) & (left_page_num == 0):
                 if index < self.repair_reference_num:
                     continue
 
@@ -227,6 +222,8 @@ def startCrawler(userInput, param):
         search.repair = 1
     if (param is '--recover'):
         search.recover = 1
+    if (param is '--fix'):
+        search.fix = 1
     #print('search param:(%d,%d)' % (search.repair, search.recover) )
     search.search_reference(userInputParams)
     #print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
