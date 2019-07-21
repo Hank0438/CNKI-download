@@ -43,7 +43,7 @@ class PageDetail(object):
 
 
     def get_detail_page(self, session, result_url, page_url,
-                        single_refence_list, userInput):
+                        single_refence_list, userInput, is_repair):
         '''
         发送三次请求
         前两次服务器注册 最后一次正式跳转
@@ -51,6 +51,7 @@ class PageDetail(object):
         # 这个header必须设置
         HEADER['Referer'] = result_url
         #self.single_refence_list=single_refence_list
+        self.repair = is_repair
         self.userInput = userInput
         self.patentDetail['id'] = single_refence_list[0]
         self.patentDetail['patentName'] = single_refence_list[1]
@@ -103,14 +104,30 @@ class PageDetail(object):
         self.patentDetail['applyId'] = self.date[0]
         self.patentDetail['announceDate'] = self.checkItem[1]
         self.patentDetail['announceId'] = self.date[1]
-        f = open('data/'+ self.userInput +'.txt', 'a', encoding='utf-8')
+
         writeLine = (self.userInput+' '+self.patentDetail['id']+' '+ self.patentDetail['patentName']+' '+
                     self.patentDetail['applyDate']+' '+self.patentDetail['applyId']+' '+
                     self.patentDetail['announceDate']+' '+self.patentDetail['announceId'])
-        f.write(writeLine + '\n')
-        f.close()
 
-'''
+        #print(self.repair)
+        if self.repair:
+            f_read = open('data/'+ self.userInput +'.txt', 'r', encoding='utf-8')
+            f_lines = f_read.readlines()
+            f_id = int(self.patentDetail['id'].replace(',', ''))-1
+            #print(f_lines)
+            #print(f_id)
+            f_lines[f_id] = writeLine + '\n'
+            f_write = open('data/'+ self.userInput +'.txt', 'w', encoding='utf-8')
+            f_write.writelines(f_lines)
+            f_read.close()
+            f_write.close()
+        else:
+            print('shit')
+            f = open('data/'+ self.userInput +'.txt', 'a', encoding='utf-8')
+            f.write(writeLine + '\n')
+            f.close()
+
+
     def create_list(self):
         
         ### 整理excel每一行的数据
@@ -123,18 +140,19 @@ class PageDetail(object):
         self.reference_list.append(self.date[0])
         self.reference_list.append(self.checkItem[1])
         self.reference_list.append(self.date[1])
+
     def wtire_excel(self):
-        '''
-        将获得的数据写入到excel
-        '''
+        
+        ### 将获得的数据写入到excel
+        
         self.create_list()
         for i in range(0,8):
             self.sheet.write(int(self.reference_list[0]),i,self.reference_list[i],self.basic_style)
 
     def set_style(self):
-        '''
-        设置excel样式
-        '''
+        
+        ### 设置excel样式
+        
         self.sheet.col(1).width = 256 * 20
         self.sheet.col(2).width = 256 * 20
         self.sheet.col(3).width = 256 * 20
@@ -161,12 +179,10 @@ class PageDetail(object):
 
         self.basic_style.alignment=al
         self.basic_style.borders=borders
-
-'''
+        
     def set_new_guid(self):
-        '''
-        生成用户秘钥
-        '''
+        ### 生成用户秘钥
+        
         guid=''
         for i in range(1,32):
             n = str(format(math.floor(random.random() * 16.0),'x'))

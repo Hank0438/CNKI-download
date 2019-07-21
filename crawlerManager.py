@@ -39,7 +39,7 @@ if select_condition is 'A':
         line = line.strip()
         print('下載: ', line)
         ### os.system("python main.py " + line)
-        startCrawler(line, '')
+        startCrawler(line, numVerify, '')
         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
         time.sleep(crawl_stepWaitTime)
 
@@ -49,7 +49,7 @@ if select_condition is 'B':
 
     # 處理網路錯誤的
     part = input('第幾份:')
-    checkLarge = 1000
+    checkLarge = 30000
     f = open('referenceDetail' + part + '000.txt', 'r', encoding='utf-8')
     for detail in f.readlines():
         detail = detail.strip().split(' ')
@@ -58,54 +58,85 @@ if select_condition is 'B':
         print('檢查: ', idx, line)
         if len(detail) == 3:
             numVerify = detail[2]
-            if int(numVerify.replace(',', '')) < checkLarge:
+            numVerify = int(numVerify.replace(',', ''))
+            if numVerify < checkLarge:
                 if os.path.isfile('data/' + line + '.txt'):
+                    
+                    ftxt = open('data/' + line + '.txt', 'r',encoding='utf-8')
+                    ftxt_lines = ftxt.readlines()
+                    ftxt.close()
+                    ftxt_sorted = open('data/' + line + '.txt', 'w',encoding='utf-8')
+
+                    
+                    lines = [(fi.strip().split(' ')) for fi in ftxt_lines]
+                    sortedLines = sorted(lines, key=lambda x: int(x[1].replace(',', '')) )
+                    sortedLinesNoRepeat = []
+                    for s in sortedLines:
+                        if s not in sortedLinesNoRepeat:
+                            sortedLinesNoRepeat.append(s)
+
+                    writeLines = []
+                    j = 0 
+                    for i in range(numVerify):
+                        if i+1 == int(sortedLinesNoRepeat[j][1].replace(',', '') ):
+                            writeLines.append(' '.join(sortedLinesNoRepeat[j]) + '\n')
+                            if j+1 < len(sortedLinesNoRepeat):
+                                j += 1
+                        else: 
+                            writeLines.append(line + ' ' + str(i+1) + '\n')
+
+                    ftxt_sorted.writelines(writeLines)
+                    ftxt_sorted.close()
+                    
+
+                    missingPage = []
+                    ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
+                    ftxt_lines = ftxt.readlines()
+                    ftxt.close()
+                    for i in range(numVerify):
+                        if len(ftxt_lines[i].split(' ')) == 2:
+                            missingPage.append(str(i+1))  
+                    print('(num, numVerify, missingPage): ', len(writeLines), numVerify, len(missingPage))
+
                     try:
-                        ftxt = open('data/' + line + '.txt', 'r', encoding='utf-8')
-                        ftxt_lines = ftxt.readlines()
-                        num = len(ftxt_lines)
-                        ftxt.close()
-                        print('num: ', num)
-                        print('numVerify: ', int(numVerify.replace(',', '')) )
-                        
-                        if(num < int(numVerify.replace(',', ''))):
+                        if len(missingPage) != 0:
                             print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
                             print("網路錯誤:", line + '.txt')
                             print("重新下載: ", line)
                             print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
                             ### os.system("python main.py " + line + " --repair")
-                            #startCrawler(line, "--repair")
+                            startCrawler(line, numVerify, "--repair", missingPage)
                             time.sleep(crawl_stepWaitTime)
-                        
+                    
                     except:
+                        print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
                         try:
-                            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
                             print('打不開 ' + line + '.txt')
                             print("重新下載: ", line)
-                            print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                            if os.path.isfile('data/' + line + '.txt'):
-                                ###os.system("python main.py " + line + " --repair")
-                                #startCrawler(line, "--repair")
-                                pass
-                            else:
-                                ###os.system("python main.py " + line + " --recover")
-                                #startCrawler(line, "--recover")
-                                pass
+                            ###os.system("python main.py " + line + " --repair")
+                            startCrawler(line, numVerify, "--repair", missingPage)
                             time.sleep(crawl_stepWaitTime)
                         except:
                             print("重新下載錯誤")
-                else:
-                    if int(numVerify.replace(',', '')) > 0:
                         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-                        print('下載: ', line)
-                        ###os.system("python main.py " + line)
+                    
+                #print(line, ' ', missingPage)
+                
+                    
+                else:
+                    if numVerify > 0:
+                        print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
                         try:
-                            startCrawler(line, "")
+                            print('下載: ', line)
+                            ###os.system("python main.py " + line)
+                            startCrawler(line, numVerify, "", [])
+                            time.sleep(crawl_stepWaitTime)
                         except:
                             print('下載錯誤')
                         print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
             else:
-                print('超過%d筆' % checkLarge)
+                print(line, ' 超過%d筆' % checkLarge)
+
 
 
 incompleteCount, refCount, repeatCount, disappearCount = 0, 0, 0, 0
@@ -134,26 +165,33 @@ if select_condition is 'C':
                 foundRepeat = False
                 ftxt_idx = 0
                 ftxt_idxArr = []
-                for ftxt_line in ftxtLines:
-            
-                    ftxt_line = ftxt_line.strip().split(' ')
-                    ftxt_idx += 1
-                    entryCount += 1
-                    
-                    if ftxt_idx != int(ftxt_line[1]):
-                        ftxt_idx = int(ftxt_line[1])
+                idx_error = 0
+                for file_idx in range(numVerify):
+                    if file_idx+1 <= len(ftxtLines):
+                        ftxt_line = ftxtLines[file_idx]
+                        ftxt_line = ftxt_line.strip().split(' ')
+                        ftxt_idx += 1
+                        entryCount += 1
+                        
+                        if ftxt_idx != int(ftxt_line[1]):
+                            ftxt_idx = int(ftxt_line[1])
 
-                        ftxt_idxArr.append(ftxt_idx-1)
-                        entryCountArr.append(entryCount)
-                        entryCount = 0
-                        foundRepeat = True
+                            ftxt_idxArr.append(ftxt_idx-1)
+                            entryCountArr.append(entryCount)
+                            entryCount = 0
+                            foundRepeat = True
+
+                        if file_idx+1 != int(ftxt_line[1]):
+                            idx_error += 1
+                    else: 
+                        idx_error += 1
 
                 if foundRepeat:
                     ftxt_idxArr.append(ftxt_idx)
                     entryCountArr.append(entryCount)
                     print('-'*5 + '文件有重複爬取' + '-'*5)
                     repeatCount += 1
-                    print('段落: ', ftxt_idxArr, '\n連續行數: ', entryCountArr, '\n總行數: ', numVerify)
+                    print('段落: ', ftxt_idxArr, '\n連續行數: ', entryCountArr, '\n總行數: ', numVerify, '\n排序缺數:', idx_error)
                         
             else:
                 print('-'*5 + '文件不存在' + '-'*5)
@@ -182,8 +220,9 @@ if select_condition is 'D':
         
         if len(detail) == 3:
             numVerify = detail[2]
+            numVerify = int(numVerify.replace(',', ''))
             
-            if int(numVerify.replace(',', '')) > int(checkLarge):
+            if numVerify > int(checkLarge):
                 countLarge += 1
                 print(detail)
     print('countLarge: ', countLarge)

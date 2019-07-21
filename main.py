@@ -48,15 +48,18 @@ class SearchTools(object):
 
     def __init__(self):
         self.session = requests.Session()
-        self.repair = 0
-        self.recover = 0
-        self.fix = 0
+        self.repair = False
+        self.recover = False
         self.userInput = ''
+        self.numVerify = 0
         self.reference_num = ''
-        self.repair_num = 0
-        self.cur_page_num = 1
+        self.cur_page_num = 0
         self.left_page_num = 0
         self.total_page_num = 0
+        self.startPage = True
+        self.missingPage = []
+        self.missingPage_idx = 0
+        self.getDetail = False
         # 保持連線
         self.session.get(BASIC_URL, headers=HEADER)
 
@@ -88,13 +91,7 @@ class SearchTools(object):
 
         print('檢索到' + self.reference_num + '條結果，總共' + str(self.total_page_num) + '頁')
 
-        if (self.repair == 1):
-            ftxt = open('data/' + self.userInput + '.txt', 'r', encoding='utf-8')
-            self.repair_num = len(ftxt.readlines())
-            ftxt.close()
-            self.cur_page_num = (self.repair_num // 20) + 1
-            self.repair_reference_num = self.repair_num % 20
-            self.left_page_num = self.total_page_num - self.cur_page_num
+        if self.repair:
             self.get_another_page()
         else:
             self.left_page_num = self.total_page_num - self.cur_page_num
@@ -121,9 +118,15 @@ class SearchTools(object):
                                 page_source))
         
         for index, tr_info in enumerate(tr_table.find_all(name='tr')):
-            if (self.repair == 1) & (left_page_num == 0):
-                if index < self.repair_reference_num:
-                    continue
+
+            searching_idx = str((index+1) + (self.cur_page_num-1)*20)
+            #print('searching_idx: ', searching_idx)
+            if self.repair & (searching_idx in self.missingPage) is False:
+                ##print('QQ')
+                self.getDetail = False
+            else:
+                self.getDetail = True
+
 
             tr_text = ''
             detail_url = ''
@@ -143,30 +146,23 @@ class SearchTools(object):
                 if dt_url:
                     detail_url = dt_url.attrs['href']
                     filename = detail_url[detail_url.find('filename=')+9:]
-                    #print("filename: ", filename)
-                
-                # 寫檔
-                #f.write(td_text + ' ')
-            
-            # 在每一行结束后输入一个空行
-            #f.write(filename + '\n')
 
             # 将每一篇文献的信息分组
             single_refence_list = tr_text.split(' ')
             #print('正在下载: ' + single_refence_list[1])
             
             # 是否开启详情页数据抓取
-            time.sleep(config.crawl_stepWaitTime)
-            page_detail.get_detail_page(self.session, self.get_result_url,
-                                            detail_url, single_refence_list, self.userInput)
-                
+            if self.getDetail:
+                ##print('repair:',self.repair)
+                time.sleep(config.crawl_stepWaitTime)
+                page_detail.get_detail_page(self.session, self.get_result_url,
+                                            detail_url, single_refence_list, self.userInput, self.repair)
+            self.getDetail = False
 
-        # self.left_page_num为剩余等待遍历页面
+        
         #print('download_page_left: ', self.left_page_num)
         
-        if self.left_page_num >= 1:
-            self.cur_page_num += 1
-            self.get_another_page()
+        self.get_another_page()
 
     def get_another_page(self):
         #print('cur_page_num: ', self.cur_page_num)
@@ -174,26 +170,32 @@ class SearchTools(object):
         请求其他页面和请求第一个页面形式不同
         重新构造请求
         '''
-        time.sleep(config.crawl_stepWaitTime)
-        '''
-        curpage_pattern_compile = re.compile(r'.*?curpage=(\d+).*?')
-        self.get_result_url = CHANGE_PAGE_URL + re.sub(
-            curpage_pattern_compile, '?curpage=' + str(self.cur_page_num),
-            self.change_page_url)
-        '''
-        self.get_result_url = CHANGE_PAGE_URL + '?curpage='  + str(self.cur_page_num) + '&RecordsPerPage=20&QueryID=0&ID=&turnpage=1&tpagemode=L&dbPrefix=SCOD&Fields=&DisplayMode=listmode&PageName=ASP.brief_default_result_aspx&isinEn=1&'
-        #print('self.get_result_url: ', self.get_result_url)
-        get_res = self.session.get(self.get_result_url, headers=HEADER)
-        self.left_page_num -= 1
-        self.parse_page(get_res.text)
+        if self.repair:
+            if self.missingPage_idx < len(self.missingPage):
+                #print('self.missingPage_idx:', self.missingPage_idx)
+                self.repair_num = int(self.missingPage[self.missingPage_idx])
+                self.cur_page_num = (self.repair_num // 20) + 1
+                self.left_page_num = self.total_page_num - self.cur_page_num
+                
+                while self.missingPage_idx < len(self.missingPage):
+                    if (int(self.missingPage[self.missingPage_idx]) // 20) + 1 != self.cur_page_num:
+                        break  
+                    self.missingPage_idx += 1
+            else:
+                self.left_page_num = -1
+        else:
+            self.cur_page_num += 1
+            self.left_page_num -= 1
+
+        #print('self.left_page_num: ', self.left_page_num)
+        if self.left_page_num >= 0:
+            time.sleep(config.crawl_stepWaitTime)
+            self.get_result_url = CHANGE_PAGE_URL + '?curpage='  + str(self.cur_page_num) + '&RecordsPerPage=20&QueryID=0&ID=&turnpage=1&tpagemode=L&dbPrefix=SCOD&Fields=&DisplayMode=listmode&PageName=ASP.brief_default_result_aspx&isinEn=1&'
+            #print('self.get_result_url: ', self.get_result_url)
+            get_res = self.session.get(self.get_result_url, headers=HEADER)
+            self.parse_page(get_res.text)
+
         
-def s2h(seconds):
-    '''
-    将秒数转为小时数
-    '''
-    m, s = divmod(seconds, 60)
-    h, m = divmod(m, 60)
-    return ("%02d小时%02d分钟%02d秒" % (h, m, s))
 
 def get_uesr_inpt(userInput):
     '''
@@ -207,28 +209,24 @@ def get_uesr_inpt(userInput):
     }
     source_fields = {}
     fields={**condition_field_list,**source_fields}
-    #print('正在检索中.....')
-    #print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-    #print('fields', fields)
     return fields
 
-def startCrawler(userInput, param):
+def startCrawler(userInput, numVerify, param, missingPage):
     time.perf_counter()
     search = SearchTools()
     userInput_counter = 0
     search.userInput = userInput
+    search.numVerify = numVerify
+    search.missingPage = missingPage
     userInputParams = get_uesr_inpt(search.userInput)
-    if (param is '--repair'):
-        search.repair = 1
-    if (param is '--recover'):
-        search.recover = 1
-    if (param is '--fix'):
-        search.fix = 1
+    if (param == '--repair'):
+        search.repair = True
+    if (param == '--recover'):
+        search.recover = True
     #print('search param:(%d,%d)' % (search.repair, search.recover) )
     search.search_reference(userInputParams)
-    #print('－－－－－－－－－－－－－－－－－－－－－－－－－－')
-    print('執行完成，耗時：'+s2h(time.perf_counter()))
+    print('下載完成')
 
 
 if __name__ == '__main__':
-    startCrawler('扬州亿安电动车有限公司', '')
+    startCrawler('扬州亿安电动车有限公司', 6, '', [])
